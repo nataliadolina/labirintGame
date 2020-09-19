@@ -13,22 +13,29 @@ public abstract class ChestBase : MonoBehaviour
 
     private Button button;
     private Renderer renderer;
-    protected void Init()
+
+    protected IOpenBehaviour openBehaviour;
+
+    public delegate void InvokeEnemies(Vector3 targetPos);
+    public static InvokeEnemies InvokeEnemy;
+
+    protected virtual void Start()
     {
         renderer = objWithRenderer.GetComponent<Renderer>();
         animator = model.GetComponent<Animator>();
         button = Buttons.instance.openButton;
     }
-    protected void Open()
+    private void Open()
     {
+        InvokeEnemy(transform.position);
         animator.SetTrigger("open");
         StartCoroutine("WaitToOpen");
     }
-    protected void UpdateFunc()
+    protected virtual void Update()
     {
         MakeTransparent();
     }
-    protected void MakeTransparent()
+    private void MakeTransparent()
     {
         if (setTransp)
         {
@@ -46,12 +53,15 @@ public abstract class ChestBase : MonoBehaviour
             }
         }
     }
-    protected IEnumerable WaitToOpen()
+    private IEnumerable WaitToOpen()
     {
         yield return new WaitForSeconds(animLength);
+        Debug.Log("Coroutine started");
         setTransp = true;
+        
+        Debug.Log("Invoked");
     }
-    protected void OnTriggerEnter(Collider other)
+    protected virtual void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
@@ -59,7 +69,7 @@ public abstract class ChestBase : MonoBehaviour
             Buttons.instance.Open += Open;
         }
     }
-    protected void OnTriggerExit(Collider other)
+    protected virtual void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {

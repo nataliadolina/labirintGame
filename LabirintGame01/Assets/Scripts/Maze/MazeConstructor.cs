@@ -10,17 +10,22 @@ public class MazeConstructor : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private GameObject chest;
     [SerializeField] private GameObject mazeWallWithTorch;
-    private float mazeDelta;
+    public static float mazeDelta;
     [SerializeField] private Transform wallsContainer;
     [SerializeField] private Transform chestsContainer;
-    [SerializeField] private Transform mazeStart;
+
+    [SerializeField] private GameObject enemy;
+    [SerializeField] private Transform enemiesContainer;
+    public Transform mazeStart;
     private MazeDataGenerator dataGenerator;
+
+    public NodesContainer nodes;
 
     private List<(int, int)> emptyCells;
     private (int, int) playerPosition;
 
     //2
-    public int[,] data
+    public static int[,] data
     {
         get; private set;
     }
@@ -37,7 +42,9 @@ public class MazeConstructor : MonoBehaviour
             {1, 1, 1}
         };
         dataGenerator = new MazeDataGenerator();
-        
+        StaticConvertFunc.delta = mazeDelta;
+        StaticConvertFunc.mazeStart = mazeStart.position;
+
     }
     
     private void BuildMaze()
@@ -49,9 +56,9 @@ public class MazeConstructor : MonoBehaviour
         {
             for (int col=0; col < data.GetUpperBound(1); col++)
             {
-                pos = ReturnPositionInMaze(row, col);
+                pos = StaticConvertFunc.ReturnPositionInMaze(row, col);
                 obj = null;
-                if (data[row, col] == 1)
+                if (data[row, col] == dataGenerator.wall)
                 {
                     
                     if (!withTorch)
@@ -66,22 +73,26 @@ public class MazeConstructor : MonoBehaviour
                         withTorch = false;
                     } 
                 }
-                else if (data[row, col] == 2)
+                else if (data[row, col] == dataGenerator.chest)
                 {
                     obj = Instantiate(chest, pos, Quaternion.identity, chestsContainer);
                 }
-                else if (data[row, col] == 3)
+                else if (data[row, col] == dataGenerator.player)
                 {
                     pos.y = 0;
                     obj = Instantiate(player, pos, Quaternion.identity);
                 }
+                else if (data[row, col] == dataGenerator.enemy)
+                {
+                    obj = Instantiate(enemy, pos, Quaternion.identity, enemiesContainer);
+                }
             }
         }
     }
+    
     private void BuildLevel()
     {
         DestroyOldMaze();
-        InstantiatePlayer();
         BuildMaze();
     }
     private void DestroyOldMaze()
@@ -92,26 +103,7 @@ public class MazeConstructor : MonoBehaviour
             Destroy(go);
         }
     }
-    private Vector3 ReturnPositionInMaze(int row, int col)
-    {
-        return new Vector3(mazeStart.position.x + mazeDelta * col, mazeStart.position.y, mazeStart.position.z + mazeDelta * row);
-    }
-    private void InstantiatePlayer()
-    {
-        Vector3 pos;
-        for (int row = 0; row < data.GetUpperBound(0); row++)
-        {
-            for (int col = 0; col < data.GetUpperBound(1); col++)
-            {
-                if (data[row, col] == 0)
-                {
-                    pos = ReturnPositionInMaze(row, col);
-                    Instantiate(player, pos, Quaternion.identity);
-                    return;
-                }
-            }
-        }
-    }
+    
     
     public void GenerateNewMaze(int sizeRows, int sizeCols)
     {
@@ -119,8 +111,8 @@ public class MazeConstructor : MonoBehaviour
         {
             Debug.LogError("Odd numbers work better for dungeon size.");
         }
-
         data = dataGenerator.FromDimensions(sizeRows, sizeCols);
+        Debug.Log("Generated");
         BuildMaze();
     }
     void OnGUI()

@@ -5,10 +5,16 @@ public class MazeDataGenerator
 {
     #region definitions
     //0 - empty space
-    //1 - wall
-    //2 - chest
-    //3 - player
+    //-1 - wall
+    //-2 - chest
+    //-3 - player
+    //-4 - enemy
     #endregion
+    public int emptySpace { get; private set; }
+    public int wall { get; private set; }
+    public int chest { get; private set; }
+    public int player { get; private set; }
+    public int enemy { get; private set; }
     public float placementThreshold;    // chance of empty space
     private int[,] maze { get; set; }
     private List<(int, int)> emptyCells;
@@ -16,6 +22,11 @@ public class MazeDataGenerator
     {
         placementThreshold = .1f;
         emptyCells = new List<(int, int)>();
+        emptySpace = 0;
+        wall = -1;
+        chest = -2;
+        player = -3;
+        enemy = -4;
     }
     private int GenerateIndex(List<int> generated, int minIndex, int maxIndex)
     {
@@ -35,7 +46,20 @@ public class MazeDataGenerator
         {
             index = GenerateIndex(generated, 1, emptyCells.Count);
             cell = emptyCells[index];
-            maze[cell.Item1, cell.Item2] = 2;
+            maze[cell.Item1, cell.Item2] = chest;
+            generated.Add(index);
+        }
+    }
+    private void GenerateEnemiesPosts()
+    {
+        List<int> generated = new List<int>();
+        int index;
+        (int, int) cell;
+        for (int i = 0; i < 2; i++)
+        {
+            index = GenerateIndex(generated, 1, emptyCells.Count);
+            cell = emptyCells[index];
+            maze[cell.Item1, cell.Item2] = enemy;
             generated.Add(index);
         }
     }
@@ -47,12 +71,13 @@ public class MazeDataGenerator
             {
                 if (maze[row, col] == 0)
                 {
-                    maze[row, col] = 3;
+                    maze[row, col] = player;
                     return;
                 }
             }
         }
     }
+   
     public int[,] FromDimensions(int sizeRows, int sizeCols)    // 2
     {
         maze = new int[sizeRows, sizeCols];
@@ -72,11 +97,11 @@ public class MazeDataGenerator
                     if (Random.value > placementThreshold)
                     {
                         //3
-                        maze[i, j] = 1;
+                        maze[i, j] = wall;
 
-                        int a = Random.value < .5 ? 0 : 1;
-                        int b = a != 0 ? 0 : (Random.value < .5 ? -1 : 1);
-                        maze[i + a, j + b] = 1;
+                        int a = Random.value < .5 ? emptySpace : 1;
+                        int b = a != 0 ? emptySpace : (Random.value < .5 ? -1 : 1);
+                        maze[i + a, j + b] = wall;
                     }
                 }
                 if (maze[i, j] == 0)
@@ -85,8 +110,10 @@ public class MazeDataGenerator
                 }
             }
         }
+        
         GenerateChestsPos();
         GeneratePlayerPos();
+        GenerateEnemiesPosts();
         return maze;
     }
 }
