@@ -25,11 +25,11 @@ public abstract class ChestBase : MonoBehaviour
         animator = model.GetComponent<Animator>();
         button = Buttons.instance.openButton;
     }
-    private void Open()
+    protected virtual void Open()
     {
         InvokeEnemy(transform.position);
         animator.SetTrigger("open");
-        StartCoroutine("WaitToOpen");
+        //StartCoroutine("WaitToOpen");
     }
     protected virtual void Update()
     {
@@ -56,10 +56,8 @@ public abstract class ChestBase : MonoBehaviour
     private IEnumerable WaitToOpen()
     {
         yield return new WaitForSeconds(animLength);
-        Debug.Log("Coroutine started");
         setTransp = true;
         
-        Debug.Log("Invoked");
     }
     protected virtual void OnTriggerEnter(Collider other)
     {

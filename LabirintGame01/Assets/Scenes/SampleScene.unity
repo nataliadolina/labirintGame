@@ -1672,7 +1672,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 449450391}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.7714343, y: -29.82987, z: -6.088219}
+  m_LocalPosition: {x: 1.5, y: -29.82987, z: -6.088219}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 952812705}
@@ -2097,7 +2097,7 @@ GameObject:
   - component: {fileID: 664249492}
   m_Layer: 0
   m_Name: NodesContainer
-  m_TagString: Untagged
+  m_TagString: NodesContainer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3309,7 +3309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d8476df6ae54fa409d206878e1dfeb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rows: 13
+  rows: 17
   cols: 29
   generator: {fileID: 0}
 --- !u!114 &1293783429
@@ -3333,7 +3333,7 @@ MonoBehaviour:
     type: 3}
   wallsContainer: {fileID: 1466618805}
   chestsContainer: {fileID: 622408934}
-  enemy: {fileID: 5182925916682158597, guid: 9e0fa5c9a3c6f064d9d6bbf2c63ca0c6, type: 3}
+  enemy: {fileID: 5015256929120781625, guid: 11bee824813846f4bbdf45587e348627, type: 3}
   enemiesContainer: {fileID: 2074272952}
   mazeStart: {fileID: 1073313064}
 --- !u!4 &1293783430

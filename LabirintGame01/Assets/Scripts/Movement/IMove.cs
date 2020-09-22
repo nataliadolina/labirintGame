@@ -14,11 +14,11 @@ public class FindWayMovement : IMove
     private List<Transform> helpNodes;
     private int currentPoint;
     private float speed;
-    private EnemyController enemy;
-    public FindWayMovement(Transform _obj, Transform _targetPoint, List<Transform> _helpNodes, float _speed, EnemyController _enemy)
+    private IEnemy enemy;
+    public FindWayMovement(Transform _obj, List<Transform> _helpNodes, float _speed, IEnemy _enemy)
     {
         obj = _obj;
-        targetPoint = _targetPoint;
+        targetPoint = _helpNodes[1];
         helpNodes = _helpNodes;
         currentPoint = 0;
         speed = _speed;
@@ -29,7 +29,7 @@ public class FindWayMovement : IMove
     {
         if (currentPoint == helpNodes.Count - 1)
         {
-            enemy.Move = new DoNothing();
+            enemy.move = new DoNothing();
             return false;
         }
 
@@ -41,6 +41,7 @@ public class FindWayMovement : IMove
 
             targetPoint = helpNodes[currentPoint];
         }
+        obj.LookAt(targetPoint);
         obj.position = Vector3.MoveTowards(obj.position, targetPoint.position, speed * Time.deltaTime);
         return true;
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,7 +26,16 @@ public class PathGenerator : MonoBehaviour
     //а до цели мы так и не дошли — значит маршрут не существует.
     #endregion
     private Transform tr;
-    public static List<(int, int)> FindPath(int[,] field, (int, int) start, (int, int) goal)
+    private int[,] field;
+    Point start;
+    Point goal;
+    public PathGenerator(int[,] _field, Point _start, Point _goal)
+    {
+        field = _field;
+        start = _start;
+        goal = _goal;
+    }
+    public List<Point> FindPath()
     {
         // Шаг 1.
         var closedSet = new List<Node>();
@@ -41,10 +51,11 @@ public class PathGenerator : MonoBehaviour
         openSet.Add(startNode);
         while (openSet.Count > 0)
         {
+            Debug.Log(openSet.Count);
             // Шаг 3.
-            var currentNode = openSet.OrderBy(node => node.EstimateFullPathLength).First();
+            Node currentNode = openSet.OrderBy(node => node.EstimateFullPathLength).First();
             // Шаг 4.
-            if (currentNode.cell == goal)
+            if (isEquel(currentNode.cell, goal))
                 return GetPathForNode(currentNode);
             // Шаг 5.
             openSet.Remove(currentNode);
@@ -53,36 +64,42 @@ public class PathGenerator : MonoBehaviour
             foreach (var neighbourNode in GetNeighbours(currentNode, goal, field))
             {
                 // Шаг 7.
-                if (closedSet.Count(node => node.cell == neighbourNode.cell) > 0)
+                if (closedSet.Count(node => isEquel(node.cell, neighbourNode.cell)) > 0)
                     continue;
                 var openNode = openSet.FirstOrDefault(node =>
-                  node.cell == neighbourNode.cell);
+                  isEquel(node.cell, neighbourNode.cell));
                 // Шаг 8.
                 if (openNode == null)
                     openSet.Add(neighbourNode);
                 else
-                  if (openNode.PathLengthFromStart > neighbourNode.PathLengthFromStart)
                 {
-                    // Шаг 9.
-                    openNode.cameFrom = currentNode;
-                    openNode.PathLengthFromStart = neighbourNode.PathLengthFromStart;
+                    if (openNode.PathLengthFromStart > neighbourNode.PathLengthFromStart)
+                    {
+                        // Шаг 9.
+                        openNode.cameFrom = currentNode;
+                        openNode.PathLengthFromStart = neighbourNode.PathLengthFromStart;
+                    }
                 }
             }
         }
         // Шаг 10.
         return null;
     }
-    private static int GetDistanceBetweenNeighbours()
+    private bool isEquel(Point cell1, Point cell2)
+    {
+        return cell1.x == cell2.x && cell1.y == cell2.y;
+    }
+    private int GetDistanceBetweenNeighbours()
     {
         return 1;
     }
-    private static int GetHeuristicPathLength((int, int) from, (int, int) to)
+    private int GetHeuristicPathLength(Point from, Point to)
     {
-        return Mathf.Abs(from.Item1 - to.Item1) + Mathf.Abs(from.Item2 - to.Item2);
+        return Mathf.Abs(from.x - to.x) + Mathf.Abs(from.y - to.y);
     }
-    private static List<(int, int)> GetPathForNode(Node pathNode)
+    private List<Point> GetPathForNode(Node pathNode)
     {
-        var result = new List<(int, int)>();
+        var result = new List<Point>();
         var currentNode = pathNode;
         while (currentNode != null)
         {
@@ -92,26 +109,26 @@ public class PathGenerator : MonoBehaviour
         result.Reverse();
         return result;
     }
-    private static List<Node> GetNeighbours(Node pathNode, (int, int) goal, int[,] field)
+    private List<Node> GetNeighbours(Node pathNode, Point goal, int[,] field)
     {
-        var result = new List<Node>();
+        var result = new List<Node>(); 
 
         // Соседними точками являются соседние по стороне клетки.
-        (int, int)[] neighbourPoints = new (int, int)[4];
-        neighbourPoints[0] = (pathNode.cell.Item1 + 1, pathNode.cell.Item2);
-        neighbourPoints[1] = (pathNode.cell.Item1 - 1, pathNode.cell.Item2);
-        neighbourPoints[2] = (pathNode.cell.Item1, pathNode.cell.Item2 + 1);
-        neighbourPoints[3] = (pathNode.cell.Item1, pathNode.cell.Item2 - 1);
+        Point[] neighbourPoints = new Point[4];
+        neighbourPoints[0] = new Point(pathNode.cell.x + 1, pathNode.cell.y);
+        neighbourPoints[1] = new Point(pathNode.cell.x - 1, pathNode.cell.y);
+        neighbourPoints[2] = new Point(pathNode.cell.x, pathNode.cell.y + 1);
+        neighbourPoints[3] = new Point(pathNode.cell.x, pathNode.cell.y - 1);
 
         foreach (var point in neighbourPoints)
         {
             // Проверяем, что не вышли за границы карты.
-            if (point.Item1 < 0 || point.Item1 >= field.GetLength(0))
+            if (point.x < 0 || point.x >= field.GetLength(0))
                 continue;
-            if (point.Item2 < 0 || point.Item2 >= field.GetLength(1))
+            if (point.y < 0 || point.y >= field.GetLength(1))
                 continue;
             // Проверяем, что по клетке можно ходить.
-            if ((field[point.Item1, point.Item2] == -1))
+            if ((field[point.x, point.y] == -1))
                 continue;
             // Заполняем данные для точки маршрута.
             var neighbourNode = new Node()

@@ -75,6 +75,7 @@ public class MazeConstructor : MonoBehaviour
                 }
                 else if (data[row, col] == dataGenerator.chest)
                 {
+                    pos.y = 2f;
                     obj = Instantiate(chest, pos, Quaternion.identity, chestsContainer);
                 }
                 else if (data[row, col] == dataGenerator.player)
@@ -84,6 +85,7 @@ public class MazeConstructor : MonoBehaviour
                 }
                 else if (data[row, col] == dataGenerator.enemy)
                 {
+                    pos.y = 1f;
                     obj = Instantiate(enemy, pos, Quaternion.identity, enemiesContainer);
                 }
             }

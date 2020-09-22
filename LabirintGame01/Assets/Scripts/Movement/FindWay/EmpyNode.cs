@@ -5,7 +5,7 @@ using UnityEngine;
 public class Node
 {
     public Vector3 worldPosition { get; set; }
-    public (int, int) cell { get; set; }
+    public Point cell { get; set; }
     public int PathLengthFromStart { get; set; }
     // Точка, из которой пришли в эту точку.
     public Node cameFrom { get; set; }
@@ -16,12 +16,8 @@ public class Node
     {
         get
         {
-            return this.PathLengthFromStart + this.HeuristicEstimatePathLength;
+            return PathLengthFromStart + HeuristicEstimatePathLength;
         }
-    }
-    public Node()
-    {
-
     }
     
 }
